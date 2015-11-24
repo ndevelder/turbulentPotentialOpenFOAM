@@ -136,7 +136,7 @@ class turbulentPotential
             word              eqnSigmaPsi_;
             word              eqncEp2_;
 			word              eqnEpsHat_;
-			word              timeScaleEps;
+			word              timeScaleEps_;
 
         //- Wall distance field
         //  Note: different to wall distance in parent RASModel
