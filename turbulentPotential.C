@@ -50,6 +50,10 @@ tmp<volScalarField> turbulentPotential::Ts() const
     return max(k_/epsilon_, 6.0*sqrt(nu()/epsilon_));
 }
 
+tmp<volScalarField> turbulentPotential::TsEh() const
+{
+    return max(1.0/epsHat_, 6.0*sqrt(nu()/epsilon_));
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -333,6 +337,11 @@ turbulentPotential::turbulentPotential
    eqnEpsHat_
    (
        coeffDict_.lookup("eqnEpsHat")
+   ),
+
+   timeScaleEps_
+   (
+       coeffDict_.lookup("timeScaleEps")
    ),
 
 
@@ -710,10 +719,21 @@ turbulentPotential::turbulentPotential
 
     Info<< "Made it past constructors " << endl;
 
+    // Calculate eddy viscosity
     if(solveNut_ == "true")
     {
-    // Calculate eddy viscosity
-       nut_ = cMu_*k_*tpphi_*Ts();
+		if(timeScaleEps_ == "epsilon" || timeScaleEps_ != "epsHat")
+		{
+            nut_ = cMu_*k_*tpphi_*Ts();
+            nut_.correctBoundaryConditions();
+        }
+
+        if(timeScaleEps_ == "epsHat")
+		{
+            nut_ = cMu_*k_*tpphi_*TsEh();
+            nut_.correctBoundaryConditions();
+        }
+
     }
 
     //Info<< "Made it past nut" << endl;
@@ -866,7 +886,7 @@ void turbulentPotential::correct()
     tpProd3d_ = mag(psiReal() ^ vorticity_);
 
     // Epsilon-hat and Sigma Equations
-	
+
         if(eqnEpsHat_ == "mod")
 	{
             epsHat_ = (epsilon_)/(k_ + cEhm_*nu()*mag(gradkSqrt_));
@@ -995,9 +1015,21 @@ void turbulentPotential::correct()
     }
 
 
+    // Calculate eddy viscosity
     if(solveNut_ == "true")
     {
-        nut_ = cMu_*k_*tpphi_*Ts();
+		if(timeScaleEps_ == "epsilon" || timeScaleEps_ != "epsHat")
+		{
+            nut_ = cMu_*k_*tpphi_*Ts();
+            nut_.correctBoundaryConditions();
+        }
+
+        if(timeScaleEps_ == "epsHat")
+		{
+            nut_ = cMu_*k_*tpphi_*TsEh();
+            nut_.correctBoundaryConditions();
+        }
+
     }
 
 

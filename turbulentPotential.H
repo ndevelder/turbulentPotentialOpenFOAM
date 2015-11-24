@@ -136,6 +136,7 @@ class turbulentPotential
             word              eqnSigmaPsi_;
             word              eqncEp2_;
 			word              eqnEpsHat_;
+			word              timeScaleEps;
 
         //- Wall distance field
         //  Note: different to wall distance in parent RASModel
@@ -182,10 +183,11 @@ class turbulentPotential
 
     // Private member functions
 
-    
-    //- Return time scale, Ts
+
+    //- Return time scale, Ts (epsilon) or TsEh (epsHat)
     tmp<volScalarField> Ts() const;
 
+    tmp<volScalarField> TsEh() const;
 
 public:
 
@@ -397,7 +399,7 @@ public:
 
         //- Return the source term for the momentum equation
         virtual tmp<fvVectorMatrix> divDevReff(volVectorField& U) const;
- 
+
         //- Return the source term for the momentum equation
         virtual tmp<fvVectorMatrix> divDevRhoReff
         (
